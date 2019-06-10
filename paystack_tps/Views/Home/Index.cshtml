@@ -1,0 +1,292 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    string addRecipientUrl = Url.Action("AddSupplier", "Home");
+    string verifyAccountUrl = Url.Action("VerifyBankAccount", "Home");
+    string initiateTransfer = Url.Action("InitiateTransfer", "Home");
+
+}
+
+
+<div class="text-left" id="supplierApp">
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add New Supplier</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Supplier name</label>
+                        <input type="text" class="form-control" value="" v-model="model.name" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bank name</label>
+                        <select class="form-control" v-model="model.bankCode">
+                            <option :value="bank.BankCode" v-for="bank in banks">{{bank.Name}}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Account number</label>
+                        <input type="text" class="form-control" value="" v-model="model.accountNumber" @@click="validateAccount(model.accountNumber)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Account name</label>
+                        <input type="text" class="form-control" value="" v-model="model.accountName" disabled />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @@click="addNewSupplier">Save Supplier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="transferModal" tabindex="-1" role="dialog" aria-labelledby="transferModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transferModalLabel">New Transfer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>Choose supplier</label>
+                        <select class="form-control" v-model="tmodel.recipient">
+                            <option :value="supplier.recipientCode" v-for="supplier in suppliers">{{supplier.name}}</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="text" class="form-control" value="" v-model="tmodel.amount" />
+                    </div>
+
+                  
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" @@click="initiateTransfer">Complete Transfer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <h3 class="display-4">Hi Sarah,</h3>
+    <p>These are your suppliers <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal"> ADD NEW SUPPLIER</button> <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#transferModal"> NEW TRANSFER</button></p>
+    <h3 class="text-danger" v-if="suppliers.length === 0"></h3>
+    <div class="d-flex flex-row flex-wrap justify-content-between" v-if="suppliers.length !== 0">
+        <div class="p-3 border border-secondary mb-3" v-for="supplier in suppliers">
+            <div class="row">
+                <div class="form-group col-12">
+                    <small class="text-center">Name</small>
+                    <p>{{supplier.name}}</p>
+                </div>
+                <div class="form-group col-6">
+                    <small class="text-center">Account number</small>
+                    <p>{{supplier.accountNumber}}</p>
+                </div>
+                <div class="form-group col-6">
+                    <small class="text-center">Account name</small>
+                    <p>{{supplier.accountName}}</p>
+                </div>
+             
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#supplierApp',
+        data: {
+            message: 'Hello Vue!',
+            suppliers: [],
+            banks: [
+                {
+                    "Name": "ACCESS BANK PLC",
+                    "BankCode": "044"
+                },
+                {
+                    "Name": "CITI Bank",
+                    "BankCode": "023"
+                },
+                {
+                    "Name": "DIAMOND BANK PLC",
+                    "BankCode": "063"
+                },
+                {
+                    "Name": "ECOBANK NIGERIA PLC",
+                    "BankCode": "050"
+                },
+                {
+                    "Name": "ENTERPRISE BANK PLC",
+                    "BankCode": "084"
+                },
+                {
+                    "Name": "FIDELITY BANK PLC",
+                    "BankCode": "070"
+                },
+                {
+                    "Name": "FIRST BANK OF NIGERIA PLC",
+                    "BankCode": "011"
+                },
+                {
+                    "Name": "FIRST CITY MONUMENT BANK PLC",
+                    "BankCode": 214
+                },
+                {
+                    "Name": "GUARANTY TRUST BANK PLC",
+                    "BankCode": "058"
+                },
+                {
+                    "Name": "Heritage Bank",
+                    "BankCode": "030"
+                },
+                {
+                    "Name": "Jaiz Bank",
+                    "BankCode": 301
+                },
+                {
+                    "Name": "KEYSTONE BANK PLC",
+                    "BankCode": "082"
+                },
+                {
+                    "Name": "MAINSTREET BANK NIGERIA PLC",
+                    "BankCode": "014"
+                },
+                {
+                    "Name": "POLARIS BANK LIMITED",
+                    "BankCode": "076"
+                },
+                {
+                    "Name": "PROVIDUS BANK",
+                    "BankCode": 101
+                },
+                {
+                    "Name": "READYCASH BANK NIGERIA",
+                    "BankCode": 100
+                },
+                {
+                    "Name": "STANBIC-IBTC BANK PLC",
+                    "BankCode": 221
+                },
+                {
+                    "Name": "Standard Chartered Bank",
+                    "BankCode": "068"
+                },
+                {
+                    "Name": "STERLING BANK PLC",
+                    "BankCode": 232
+                },
+                {
+                    "Name": "UNION BANK OF NIGERIA PLC",
+                    "BankCode": "032"
+                },
+                {
+                    "Name": "UNITED BANK FOR AFRICA",
+                    "BankCode": "033"
+                },
+                {
+                    "Name": "UNITY BANK PLC",
+                    "BankCode": 215
+                },
+                {
+                    "Name": "URBAN MICROFINANCE BANK",
+                    "BankCode": 508
+                },
+                {
+                    "Name": "WEMA BANK PLC",
+                    "BankCode": "035"
+                },
+                {
+                    "Name": "ZENITH BANK PLC",
+                    "BankCode": "057"
+                }
+            ],
+            model: {
+                name: '',
+                bankCode: '',
+                accountNumber: '',
+                accountName: '',
+                recipientCode : ''
+            },
+            tmodel: {
+                recipient: '',
+                amount : 0
+            }
+        },
+        mounted() {
+            this.fetchSuppliers();
+        },
+        methods: {
+            fetchSuppliers() {
+                let suppliers = localStorage.getItem('suppliers');
+                if (suppliers) {
+                    this.suppliers = JSON.parse(suppliers);                    
+                }
+            },
+            validateAccount(value) {
+                let accountLength = value.length;
+                if (accountLength === 10) {
+                    let verifyAccountUrl = `@verifyAccountUrl?accountNumber=${value}&bankCode=${this.model.bankCode}`;
+                    httpClient(verifyAccountUrl, 'GET')
+                        .then((response) => {
+                            console.log(response.Data);
+                            this.model.accountName = response.Data.data.account_name;
+                           
+                        })
+                        .catch((error) => { });
+
+                }
+            },
+            initiateTransfer() {
+                let requestUrl = '@initiateTransfer';
+
+                httpClient(requestUrl, 'POST', this.tmodel)
+                    .then((response) => {
+                        console.log(response.Data);
+                       
+                    })
+                    .catch((error) => { });
+            },
+            addNewSupplier() {
+                let suppliers = localStorage.getItem('suppliers');
+                let addSupplierUrl = '@addRecipientUrl';
+                httpClient(addSupplierUrl, 'POST', this.model)
+                    .then((response) => {
+                        console.log(response.Data);
+                        if (suppliers) {
+                            suppliers = JSON.parse(suppliers);
+                            //model.recipientCode = response.Data.data.recipient_code;
+                            suppliers.push(this.model);
+                            this.suppliers.push(this.model);
+                            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+                        } else {
+                            suppliers = [];
+                            suppliers.push(this.model);
+                            this.suppliers.push(this.model);
+                            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+                        }
+                    })
+                    .catch((error) => { console.log(error)});
+               
+            }
+        }
+    });
+</script>

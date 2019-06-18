@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using paystack_tps.Models;
+using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using paystack_tps.Models;
 
 namespace paystack_tps.Controllers
 {
@@ -16,7 +13,7 @@ namespace paystack_tps.Controllers
         public string publicKey = "pk_test_928270706ef382a34e56ef1b87a8e7a062db16f0";
         public string secretKey = "sk_test_4c80d4884df2bbba72a9a7d5b6e4b146903e61eb";
 
-        public IActionResult Index()
+        public ActionResult Index()
         {
             return View();
         }
@@ -36,7 +33,7 @@ namespace paystack_tps.Controllers
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {secretKey}");
                 var _response = await client.PostAsJsonAsync<PaystackAddRecipientModel>(requestUrl, new PaystackAddRecipientModel
                 {
-                    acocunt_number = model.AccountNumber,
+                    account_number = model.AccountNumber,
                     bank_code = model.BankCode,
                     name = model.Name
                 });
@@ -57,7 +54,7 @@ namespace paystack_tps.Controllers
         {
             try
             {
-                string requestUrl = "https://api.paystack.co/transferrecipient";
+                string requestUrl = "https://api.paystack.co/transfer";
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {secretKey}");
                 var _response = await client.PostAsJsonAsync<PaystackInitiateTransferModel>(requestUrl, new PaystackInitiateTransferModel

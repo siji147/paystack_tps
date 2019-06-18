@@ -33,17 +33,18 @@
 
                     <div class="form-group">
                         <label>Account number</label>
-                        <input type="text" class="form-control" value="" v-model="model.accountNumber" @@click="validateAccount(model.accountNumber)" />
+                        <input type="text" class="form-control" value="" v-model="model.accountNumber" @@blur="validateAccount(model.accountNumber)" />
                     </div>
 
                     <div class="form-group">
                         <label>Account name</label>
                         <input type="text" class="form-control" value="" v-model="model.accountName" disabled />
+                        <small class="text-danger">{{error}}</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @@click="addNewSupplier">Save Supplier</button>
+                    <button type="button" class="btn btn-primary" ref="saveBtn" @@click="addNewSupplier">SAVE</button>
                 </div>
             </div>
         </div>
@@ -72,13 +73,14 @@
                     <div class="form-group">
                         <label>Amount</label>
                         <input type="text" class="form-control" value="" v-model="tmodel.amount" />
+                        <small class="text-danger">{{transferError}}</small>
                     </div>
 
                   
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" @@click="initiateTransfer">Complete Transfer</button>
+                    <button type="button" class="btn btn-success" @@click="initiateTransfer" ref="btnTransfer">Complete Transfer</button>
                 </div>
             </div>
         </div>
@@ -226,6 +228,8 @@
                 accountName: '',
                 recipientCode : ''
             },
+            error: '',
+            transferError: '',
             tmodel: {
                 recipient: '',
                 amount : 0
@@ -242,26 +246,60 @@
                 }
             },
             validateAccount(value) {
+
+                this.$refs.saveBtn.disabled = true; 
+                this.$refs.saveBtn.innerText = 'Validating Account...';
                 let accountLength = value.length;
                 if (accountLength === 10) {
                     let verifyAccountUrl = `@verifyAccountUrl?accountNumber=${value}&bankCode=${this.model.bankCode}`;
                     httpClient(verifyAccountUrl, 'GET')
                         .then((response) => {
                             console.log(response.Data);
-                            this.model.accountName = response.Data.data.account_name;
+                            if (response.Data.status === true) {
+                                this.model.accountName = response.Data.data.account_name;
+                                this.$refs.saveBtn.disabled = false;
+                                this.$refs.saveBtn.innerText = 'SAVE';
+                                this.error = '';
+
+                            } else {
+                                this.error = response.Data.message;
+                                this.$refs.saveBtn.innerText = 'SAVE';
+                                this.$refs.saveBtn.disabled = true;
+                                this.model.accountName = '';
+
+                            }
+                           
                            
                         })
-                        .catch((error) => { });
+                        .catch((error) => { 
+
+
+                        });
 
                 }
             },
             initiateTransfer() {
                 let requestUrl = '@initiateTransfer';
+                this.$refs.btnTransfer.disabled = true;
+                this.$refs.btnTransfer.innerText = 'Please wait...';
 
                 httpClient(requestUrl, 'POST', this.tmodel)
                     .then((response) => {
                         console.log(response.Data);
-                       
+
+                        if (response.Data.status === true) {
+                            this.$refs.btnTransfer.disabled = false;
+                            this.$refs.btnTransfer.innerText = 'Transfer';
+                            alert(`Transfer successful. ${response.Data.message}`);
+                            
+
+                        } else {
+                            this.$refs.btnTransfer.disabled = false;
+                            this.$refs.btnTransfer.innerText = 'Transfer';
+                            this.transferError = `Transfer failed. ${response.Data.message}`;
+
+                        }
+                                                                    
                     })
                     .catch((error) => { });
             },
@@ -273,15 +311,21 @@
                         console.log(response.Data);
                         if (suppliers) {
                             suppliers = JSON.parse(suppliers);
-                            //model.recipientCode = response.Data.data.recipient_code;
+                            this.model.recipientCode = response.Data.data.recipient_code;
                             suppliers.push(this.model);
                             this.suppliers.push(this.model);
                             localStorage.setItem('suppliers', JSON.stringify(suppliers));
+                            window.location.reload(true);
                         } else {
                             suppliers = [];
+                            this.model.recipientCode = response.Data.data.recipient_code;
+
                             suppliers.push(this.model);
+
                             this.suppliers.push(this.model);
                             localStorage.setItem('suppliers', JSON.stringify(suppliers));
+                            window.location.reload(true);
+
                         }
                     })
                     .catch((error) => { console.log(error)});

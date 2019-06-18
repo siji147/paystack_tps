@@ -9,7 +9,7 @@ namespace paystack_tps.Models
     {
         public string type { get { return "nuban"; } }
         public string name { get; set; }
-        public string acocunt_number { get; set; }
+        public string account_number { get; set; }
         public string bank_code { get; set; }
         public string currency { get { return "NGN"; } }
 

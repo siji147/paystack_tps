@@ -250,7 +250,7 @@
                 this.$refs.saveBtn.disabled = true; 
                 this.$refs.saveBtn.innerText = 'Validating Account...';
                 let accountLength = value.length;
-                if (accountLength === 10) {
+                if (accountLength > 0) {
                     let verifyAccountUrl = `@verifyAccountUrl?accountNumber=${value}&bankCode=${this.model.bankCode}`;
                     httpClient(verifyAccountUrl, 'GET')
                         .then((response) => {
